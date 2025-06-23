@@ -109,34 +109,59 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             "name", "text", "cooking_time", "author", "tags_details", "id", "is_favorited", "is_in_shopping_cart"
         )
 
-    def validate(self, data):
-        # Валидация тегов
-        # if not data.get('tags'):
-        #     raise serializers.ValidationError("Необходимо указать теги")
+    # def validate(self, data):
+    #     # Валидация тегов
+    #     # if not data.get('tags'):
+    #     #     raise serializers.ValidationError("Необходимо указать теги")
         
-        # # Валидация ингредиентов
-        # ingredients = data.get('ingredients', [])
-        # # if not ingredients:
-        # #     raise serializers.ValidationError("Необходимо указать ингредиенты")
+    #     # # Валидация ингредиентов
+    #     # ingredients = data.get('ingredients', [])
+    #     # # if not ingredients:
+    #     # #     raise serializers.ValidationError("Необходимо указать ингредиенты")
         
-        # # Проверка дубликатов ингредиентов
-        # ingredient_ids = [item['ingredient'] for item in ingredients]
-        # if len(ingredient_ids) != len(set(ingredient_ids)):
-        #     raise serializers.ValidationError(
-        #         "Ингредиенты не должны повторяться"
-        #     )
+    #     # # Проверка дубликатов ингредиентов
+    #     # ingredient_ids = [item['ingredient'] for item in ingredients]
+    #     # if len(ingredient_ids) != len(set(ingredient_ids)):
+    #     #     raise serializers.ValidationError(
+    #     #         "Ингредиенты не должны повторяться"
+    #     #     )
 
-        # tags = data.get('tags', [])
-        # # if not tags:
-        # #     raise serializers.ValidationError("Необходимо указать ингредиенты")        
+    #     # tags = data.get('tags', [])
+    #     # # if not tags:
+    #     # #     raise serializers.ValidationError("Необходимо указать ингредиенты")        
 
-        # tags_ids = [item['ingredient'] for item in tags]
-        # if len(tags_ids) != len(set(tags_ids)):
-        #     raise serializers.ValidationError(
-        #         "Ингредиенты не должны повторяться"
-        #     )
+    #     # tags_ids = [item['ingredient'] for item in tags]
+    #     # if len(tags_ids) != len(set(tags_ids)):
+    #     #     raise serializers.ValidationError(
+    #     #         "Ингредиенты не должны повторяться"
+    #     #     )
         
-        return data
+    #     return data
+
+    def validate_ingredients(self, value):
+        if not value:
+            raise serializers.ValidationError(
+                "Рецепт должен содержать хотя бы один ингредиент!"
+            )
+        ingredient_ids = [item['ingredient'].id for item in value]
+        if len(ingredient_ids) != len(set(ingredient_ids)):
+            raise serializers.ValidationError(
+                {"ingredients": "Ингредиенты не должны повторяться!"}
+            )
+        return value
+
+    def validate_tags(self, value):
+        if not value:
+            raise serializers.ValidationError(
+                "Рецепт должен содержать хотя бы один ингредиент!"
+            )
+        tags = [item for item in value]
+        if len(tags) != len(set(tags)):
+            raise serializers.ValidationError(
+                {"ingredients": "Ингредиенты не должны повторяться!"}
+            )
+        return value
+
 
     def create_ingredients(self, recipe, ingredients):
         RecipeIngredient.objects.bulk_create([
