@@ -132,10 +132,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[IsAuthenticated]
     )
     def download_shopping_cart(self, request):
+        from django.db.models import Sum
         ingredients = Ingredient.objects.filter(
-            ingredient_recipes__recipe__in_shopping_carts__user=request.user
+            recipeingredient__recipe__in_shopping_carts__user=request.user
         ).annotate(
-            total_amount=sum(F('ingredient_recipes__amount'))
+            total_amount=Sum('recipeingredient__amount')
         ).values_list(
             'name',
             'total_amount',
