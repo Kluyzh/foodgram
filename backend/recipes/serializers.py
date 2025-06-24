@@ -93,7 +93,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     tags = serializers.PrimaryKeyRelatedField(
         many=True,
         queryset=Tag.objects.all(),
-        write_only=True
+        write_only=True,
     )
     tags_details = TagSerializer(source='tags', many=True, read_only=True)
     image = Base64ImageField()
@@ -109,34 +109,14 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
             "name", "text", "cooking_time", "author", "tags_details", "id", "is_favorited", "is_in_shopping_cart"
         )
 
-    # def validate(self, data):
-    #     # Валидация тегов
-    #     # if not data.get('tags'):
-    #     #     raise serializers.ValidationError("Необходимо указать теги")
-        
-    #     # # Валидация ингредиентов
-    #     # ingredients = data.get('ingredients', [])
-    #     # # if not ingredients:
-    #     # #     raise serializers.ValidationError("Необходимо указать ингредиенты")
-        
-    #     # # Проверка дубликатов ингредиентов
-    #     # ingredient_ids = [item['ingredient'] for item in ingredients]
-    #     # if len(ingredient_ids) != len(set(ingredient_ids)):
-    #     #     raise serializers.ValidationError(
-    #     #         "Ингредиенты не должны повторяться"
-    #     #     )
 
-    #     # tags = data.get('tags', [])
-    #     # # if not tags:
-    #     # #     raise serializers.ValidationError("Необходимо указать ингредиенты")        
+    def validate(self, data):
+        if self.partial and 'tags' not in data:
+            raise serializers.ValidationError({"tags": "Поле 'tags' обязательно!"})
+        if self.partial and 'recipe_ingredients' not in data:
+            raise serializers.ValidationError({"ingredients": "Поле 'ingredients' обязательно!"})
+        return data
 
-    #     # tags_ids = [item['ingredient'] for item in tags]
-    #     # if len(tags_ids) != len(set(tags_ids)):
-    #     #     raise serializers.ValidationError(
-    #     #         "Ингредиенты не должны повторяться"
-    #     #     )
-        
-    #     return data
 
     def validate_ingredients(self, value):
         if not value:
@@ -153,12 +133,12 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
     def validate_tags(self, value):
         if not value:
             raise serializers.ValidationError(
-                "Рецепт должен содержать хотя бы один ингредиент!"
+                "Рецепт должен содержать хотя бы один тег!"
             )
         tags = [item for item in value]
         if len(tags) != len(set(tags)):
             raise serializers.ValidationError(
-                {"ingredients": "Ингредиенты не должны повторяться!"}
+                {"tags": "Теги не должны повторяться!"}
             )
         return value
 
@@ -254,3 +234,21 @@ class FavoriteSerializer(serializers.ModelSerializer):
             instance.recipe,
             context=self.context
         ).data
+
+
+class RecipeShortLinkSerializer(serializers.ModelSerializer):
+    short_link = serializers.SerializerMethodField(label='short-link')
+    
+    class Meta:
+        model = Recipe
+        fields = ('short_link',)
+    
+    def get_short_link(self, obj):
+        return self.context['request'].build_absolute_uri(
+            f'/s/{obj.id}/'
+        )
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['short-link'] = data.pop('short_link')
+        return data

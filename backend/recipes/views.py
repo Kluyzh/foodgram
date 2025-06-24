@@ -8,7 +8,7 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.decorators import action
 from rest_framework.permissions import (
     IsAuthenticated,
-    IsAuthenticatedOrReadOnly
+    IsAuthenticatedOrReadOnly, AllowAny
 )
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
@@ -28,7 +28,8 @@ from .serializers import (
     RecipeCreateUpdateSerializer,
     RecipeMinifiedSerializer,
     ShoppingCartSerializer,
-    FavoriteSerializer
+    FavoriteSerializer,
+    RecipeShortLinkSerializer
 )
 from .filters import RecipeFilter
 from .permissions import IsAuthorOrReadOnly
@@ -84,6 +85,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if request.method == "POST":
             return self._add_to(Favorite, request.user, recipe)
         return self._remove_from(Favorite, request.user, recipe)
+
+    @action(detail=True, methods=['get'], url_path='get-link', permission_classes=(AllowAny,))
+    def get_link(self, request, pk=None):
+        recipe = self.get_object()
+        serializer = RecipeShortLinkSerializer(
+            recipe,
+            context={'request': request}
+        )
+        return Response(serializer.data)
 
     @action(
         detail=True,

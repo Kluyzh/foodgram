@@ -24,6 +24,7 @@ from .serializers import (
     UserWithRecipesSerializer
 )
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -44,6 +45,8 @@ class SubscriptionViewSet(
     def create(self, request, *args, **kwargs):
         author_id = self.kwargs.get('id')
         author = self.get_object(author_id)
+        if request.user == author:
+            return Response('Невозможно подписаться на самого себя', status=status.HTTP_400_BAD_REQUEST)
         
         if Subscription.objects.filter(user=request.user, author=author).exists():
             return Response(
@@ -60,7 +63,9 @@ class SubscriptionViewSet(
 
     def destroy(self, request, *args, **kwargs):
         author_id = self.kwargs.get('id')
-        author = self.get_object(author_id)
+        # author = self.get_object(author_id)
+        author = get_object_or_404(User, id=author_id)
+        # subscription = get_object_or_404(Subscription, user=request.user, author=author)
         subscription = Subscription.objects.filter(
             user=request.user, 
             author=author
@@ -76,13 +81,14 @@ class SubscriptionViewSet(
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def get_object(self, user_id):
-        try:
-            return User.objects.get(id=user_id)
-        except User.DoesNotExist:
-            raise serializers.ValidationError(
-                {'detail': 'Пользователь не найден'},
-                code=status.HTTP_404_NOT_FOUND
-            )
+        return get_object_or_404(User, id=user_id)
+        # try:
+        #     return User.objects.get(id=user_id)
+        # except User.DoesNotExist:
+        #     raise serializers.ValidationError(
+        #         {'detail': 'Пользователь не dddddddddddddddddd'},
+        #         code=status.HTTP_404_NOT_FOUND
+        #     )
 
 
 
