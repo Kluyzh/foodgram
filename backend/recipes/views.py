@@ -1,3 +1,4 @@
+from django.db.models import Sum
 from rest_framework import (
     viewsets,
     mixins,
@@ -12,28 +13,24 @@ from rest_framework.permissions import (
 )
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from django.db.models import F
-from django.http import HttpResponse
-from .models import (
+from recipes.models import (
     Tag,
     Ingredient,
     Recipe,
     ShoppingCart,
     Favorite
 )
-from .serializers import (
+from recipes.serializers import (
     TagSerializer,
     IngredientSerializer,
     RecipeListSerializer,
     RecipeCreateUpdateSerializer,
     RecipeMinifiedSerializer,
-    ShoppingCartSerializer,
-    FavoriteSerializer,
     RecipeShortLinkSerializer
 )
-from .filters import RecipeFilter
-from .permissions import IsAuthorOrReadOnly
-from .utils import generate_shopping_list
+from recipes.filters import RecipeFilter
+from recipes.permissions import IsAuthorOrReadOnly
+from recipes.utils import generate_shopping_list
 
 
 class CustomSearchFilter(filters.SearchFilter):
@@ -64,29 +61,33 @@ class IngredientViewSet(
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
-    permission_classes = [IsAuthorOrReadOnly, IsAuthenticatedOrReadOnly]
-    filter_backends = [DjangoFilterBackend]
+    permission_classes = (IsAuthorOrReadOnly, IsAuthenticatedOrReadOnly)
+    filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
-    pagination_class = LimitOffsetPagination 
-
+    pagination_class = LimitOffsetPagination
 
     def get_serializer_class(self):
-        if self.action in ["list", "retrieve"]:
+        if self.action in ('list', 'retrieve'):
             return RecipeListSerializer
         return RecipeCreateUpdateSerializer
 
     @action(
         detail=True,
-        methods=["post", "delete"],
-        permission_classes=[IsAuthenticated]
+        methods=['post', 'delete'],
+        permission_classes=(IsAuthenticated,)
     )
     def favorite(self, request, pk=None):
         recipe = self.get_object()
-        if request.method == "POST":
+        if request.method == 'POST':
             return self._add_to(Favorite, request.user, recipe)
         return self._remove_from(Favorite, request.user, recipe)
 
-    @action(detail=True, methods=['get'], url_path='get-link', permission_classes=(AllowAny,))
+    @action(
+        detail=True,
+        methods=['get'],
+        url_path='get-link',
+        permission_classes=(AllowAny,)
+    )
     def get_link(self, request, pk=None):
         recipe = self.get_object()
         serializer = RecipeShortLinkSerializer(
@@ -97,19 +98,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=True,
-        methods=["post", "delete"],
-        permission_classes=[IsAuthenticated]
+        methods=['post', 'delete'],
+        permission_classes=(IsAuthenticated,)
     )
     def shopping_cart(self, request, pk=None):
         recipe = self.get_object()
-        if request.method == "POST":
+        if request.method == 'POST':
             return self._add_to(ShoppingCart, request.user, recipe)
         return self._remove_from(ShoppingCart, request.user, recipe)
 
     def _add_to(self, model, user, recipe):
         if model.objects.filter(user=user, recipe=recipe).exists():
             return Response(
-                {"errors": "Рецепт уже добавлен"},
+                {'errors': 'Рецепт уже добавлен'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         model.objects.create(user=user, recipe=recipe)
@@ -120,7 +121,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         obj = model.objects.filter(user=user, recipe=recipe)
         if not obj.exists():
             return Response(
-                {"errors": "Рецепт не был добавлен"},
+                {'errors': 'Рецепт не был добавлен'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         obj.delete()
@@ -128,11 +129,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=False,
-        methods=["get"],
-        permission_classes=[IsAuthenticated]
+        methods=['get'],
+        permission_classes=(IsAuthenticated,)
     )
     def download_shopping_cart(self, request):
-        from django.db.models import Sum
         ingredients = Ingredient.objects.filter(
             recipeingredient__recipe__in_shopping_carts__user=request.user
         ).annotate(

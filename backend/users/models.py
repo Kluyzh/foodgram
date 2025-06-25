@@ -4,7 +4,6 @@ from users.constants import MAX_EMAIL_LENGTH, MAX_NAME_LENGTH
 from django.core.validators import RegexValidator
 
 
-
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, username, password=None, **extra_fields):
         """
@@ -12,7 +11,7 @@ class CustomUserManager(BaseUserManager):
         """
         if not email:
             raise ValueError('Пользователь должен иметь email адрес')
-        
+
         email = self.normalize_email(email)
         user = self.model(
             email=email,
@@ -34,7 +33,9 @@ class CustomUserManager(BaseUserManager):
         if extra_fields.get('is_staff') is not True:
             raise ValueError('Суперпользователь должен иметь is_staff=True.')
         if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Суперпользователь должен иметь is_superuser=True.')
+            raise ValueError(
+                'Суперпользователь должен иметь is_superuser=True.'
+            )
 
         return self.create_user(email, username, password, **extra_fields)
 
@@ -43,30 +44,32 @@ class FoodgramUser(AbstractUser):
     """Кастомная модель пользователя."""
     email = models.EmailField(
         'Email',
-        max_length=254,
+        max_length=MAX_EMAIL_LENGTH,
         unique=True
     )
     username = models.CharField(
         'Юзернейм',
-        max_length=150,
+        max_length=MAX_NAME_LENGTH,
         unique=True,
-        validators=[RegexValidator(
-            regex=r'^[\w.@+-]+\Z',
-            message='Недопустимые символы в имени пользователя'
-        )]
+        validators=(
+            RegexValidator(
+                regex=r'^[\w.@+-]+\Z',
+                message='Недопустимые символы в имени пользователя'
+            ),
+        )
     )
-    first_name = models.CharField('Имя', max_length=150)
-    last_name = models.CharField('Фамилия', max_length=150)
+    first_name = models.CharField('Имя', max_length=MAX_NAME_LENGTH)
+    last_name = models.CharField('Фамилия', max_length=MAX_NAME_LENGTH)
     avatar = models.ImageField(
         'Аватар',
-        upload_to='users/avatars/',
+        upload_to='users/',
         blank=True,
         null=True
     )
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+    REQUIRED_FIELDS = ('username', 'first_name', 'last_name')
 
     class Meta:
         verbose_name = 'Пользователь'

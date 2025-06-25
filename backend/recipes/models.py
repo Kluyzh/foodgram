@@ -1,20 +1,20 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from recipes.constants import NAME_LIMIT, MEASURMENT_NAME_LIMIT
+from recipes.constants import NAME_LIMIT, MEASURMENT_NAME_LIMIT, BIGGER_NAME_LIMIT
 from django.core.validators import MinValueValidator
 
 User = get_user_model()
 
 
 class Ingredient(models.Model):
-    name = models.CharField('Название', max_length=128)
+    name = models.CharField('Название', max_length=NAME_LIMIT)
     measurement_unit = models.CharField(
-        'Единица измерения', max_length=64
+        'Единица измерения', max_length=MEASURMENT_NAME_LIMIT
     )
 
     class Meta:
         verbose_name = 'Ингредиент'
-        verbose_name_plural = 'ингредиенты'
+        verbose_name_plural = 'Ингредиенты'
         ordering = ('name',)
         constraints = [
             models.UniqueConstraint(
@@ -47,7 +47,7 @@ class Recipe(models.Model):
         verbose_name='Автор',
         related_name='recipes',
     )
-    name = models.CharField('Название', max_length=256)
+    name = models.CharField('Название', max_length=BIGGER_NAME_LIMIT)
     image = models.ImageField('Изображение', upload_to='recipes/images/')
     text = models.TextField('Описание')
     ingredients = models.ManyToManyField(
@@ -60,7 +60,10 @@ class Recipe(models.Model):
         Tag, related_name='recipes', verbose_name='Теги'
     )
     cooking_time = models.PositiveSmallIntegerField(
-        'Время приготовления в минутах', validators=(MinValueValidator(1, message='Минимальное время - 1 минута'),)
+        'Время приготовления в минутах',
+        validators=(
+            MinValueValidator(1, message='Минимальное время - 1 минута'),
+        )
     )
     created_at = models.DateTimeField(
         'Дата и время публикации', auto_now_add=True
@@ -80,7 +83,12 @@ class RecipeIngredient(models.Model):
         Recipe, on_delete=models.CASCADE, related_name='recipe_ingredients'
     )
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
-    amount = models.PositiveSmallIntegerField('Количество', validators=(MinValueValidator(1, message='Минимальное количество - 1'),))
+    amount = models.PositiveSmallIntegerField(
+        'Количество',
+        validators=(
+            MinValueValidator(1, message='Минимальное количество - 1'),
+        )
+    )
 
     class Meta:
         constraints = (
@@ -101,7 +109,6 @@ class Favorite(models.Model):
     recipe = models.ForeignKey(
         Recipe, on_delete=models.CASCADE, related_name='in_favorites'
     )
-    # created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         constraints = (
@@ -122,11 +129,10 @@ class ShoppingCart(models.Model):
     recipe = models.ForeignKey(
         Recipe, on_delete=models.CASCADE, related_name='in_shopping_carts'
     )
-    # created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = 'Корзина покупок'
-        verbose_name_plural = 'корзины покупок'
+        verbose_name_plural = 'Корзины покупок'
         constraints = (
             models.UniqueConstraint(
                 fields=('user', 'recipe'),
