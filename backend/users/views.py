@@ -108,9 +108,9 @@ class CustomUserViewSet(viewsets.ModelViewSet):
         return UserSerializer
 
     @action(
-        ["get"], 
+        methods=['get'],
         detail=False,
-        permission_classes=[IsAuthenticated]
+        permission_classes=(IsAuthenticated,)
     )
     def me(self, request, *args, **kwargs):
         serializer = self.get_serializer(request.user)
