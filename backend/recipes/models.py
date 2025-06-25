@@ -1,7 +1,9 @@
-from django.db import models
 from django.contrib.auth import get_user_model
-from recipes.constants import NAME_LIMIT, MEASURMENT_NAME_LIMIT, BIGGER_NAME_LIMIT
 from django.core.validators import MinValueValidator
+from django.db import models
+
+from recipes.constants import (BIGGER_NAME_LIMIT, MEASURMENT_NAME_LIMIT,
+                               NAME_LIMIT)
 
 User = get_user_model()
 
@@ -68,6 +70,10 @@ class Recipe(models.Model):
     created_at = models.DateTimeField(
         'Дата и время публикации', auto_now_add=True
     )
+
+    @property
+    def favorites_count(self):
+        return self.in_favorites.count()
 
     class Meta:
         verbose_name = 'Рецепт'

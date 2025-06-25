@@ -1,10 +1,11 @@
-from django.contrib.auth import authenticate
-from rest_framework import serializers
-from django.utils.translation import gettext_lazy as _
-from django.contrib.auth import get_user_model
-from django.core.files.base import ContentFile
 import base64
 import uuid
+
+from django.contrib.auth import authenticate, get_user_model
+from django.core.files.base import ContentFile
+from django.utils.translation import gettext_lazy as _
+from rest_framework import serializers
+
 from recipes.models import Recipe
 
 User = get_user_model()

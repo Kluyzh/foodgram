@@ -140,3 +140,7 @@ dmypy.json
 
 static/
 media/
+
+import_script.py
+
+.isort.cfg

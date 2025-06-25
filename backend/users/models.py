@@ -1,7 +1,8 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
-from users.constants import MAX_EMAIL_LENGTH, MAX_NAME_LENGTH
 from django.core.validators import RegexValidator
+from django.db import models
+
+from users.constants import MAX_EMAIL_LENGTH, MAX_NAME_LENGTH
 
 
 class CustomUserManager(BaseUserManager):
@@ -99,7 +100,7 @@ class Subscription(models.Model):
     )
 
     class Meta:
-        constraints = [
+        constraints = (
             models.UniqueConstraint(
                 fields=['user', 'author'],
                 name='unique_subscription'
@@ -108,6 +109,6 @@ class Subscription(models.Model):
                 check=~models.Q(user=models.F('author')),
                 name='no_self_subscribe'
             )
-        ]
+        )
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'

@@ -1,21 +1,17 @@
-from rest_framework.pagination import PageNumberPagination
-from rest_framework import viewsets, mixins, status
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework.authtoken.models import Token
-from users.serializers import (
-    UserSerializer,
-    CustomUserCreateSerializer,
-    SetAvatarSerializer,
-    UserWithRecipesSerializer,
-    EmailAuthTokenSerializer
-)
-from rest_framework.permissions import IsAuthenticated
-from users.models import Subscription
 from django.contrib.auth import get_user_model
-from django.shortcuts import get_object_or_404
-
 from django.contrib.auth.hashers import check_password
+from django.shortcuts import get_object_or_404
+from rest_framework import mixins, status, viewsets
+from rest_framework.authtoken.models import Token
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
+from users.models import Subscription
+from users.pagination import CustomPageNumberPagination
+from users.serializers import (CustomUserCreateSerializer,
+                               EmailAuthTokenSerializer, SetAvatarSerializer,
+                               UserSerializer, UserWithRecipesSerializer)
 
 User = get_user_model()
 
@@ -89,12 +85,6 @@ class CustomTokenViewSet(viewsets.ViewSet):
     def logout(self, request):
         request.auth.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class CustomPageNumberPagination(PageNumberPagination):
-    page_size = 6
-    page_size_query_param = 'limit'
-    max_page_size = 100
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):

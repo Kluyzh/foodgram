@@ -1,11 +1,12 @@
-import os
-import django
 import json
+import os
+
+import django
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'foodgram_backend.settings')
 django.setup()
 
-from recipes.models import Ingredient  # замените на ваше приложение
+from recipes.models import Ingredient
 
 with open('ingredients.json', 'r', encoding='utf-8') as f:
     data = json.load(f)

@@ -1,5 +1,6 @@
-from django.http import HttpResponse
 import io
+
+from django.http import HttpResponse
 
 
 def generate_shopping_list(ingredients):
