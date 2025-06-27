@@ -4,6 +4,7 @@ volumes:
   pg_data:
   static:
   media:
+  frontend:
 
 services:
   db:
@@ -14,17 +15,18 @@ services:
   frontend:
     image: ilhambalat/foodgram_frontend
     volumes:
-      - static:/app/result_build/
+      - frontend:/app/result_build/build/
   backend:
     image: ilhambalat/foodgram_backend
     env_file: .env
     volumes:
-      - static:/app/backend_static
+      - static:/app/collected_static
       - media:/app/media
   nginx:
     image: ilhambalat/foodgram_nginx
     ports:
       - 8888:80
     volumes:
-      - static:/usr/share/nginx/html/
+      - frontend:/usr/share/nginx/html/
+      - static:/static
       - media:/media
