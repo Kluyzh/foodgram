@@ -13,6 +13,23 @@ DEBUG = os.getenv('DEBUG') == 'True'
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(',')
 
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://foodgraaam.sytes.net',
+
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "https://foodgraaam.sytes.net",
+]
+
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_HTTPONLY = False
+
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
