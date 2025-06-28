@@ -111,14 +111,15 @@ class CustomUserViewSet(viewsets.ModelViewSet):
         detail=False,
         serializer_class=SetAvatarSerializer,
         url_path='me/avatar',
+        permission_classes=(IsAuthenticated,)
     )
-    def avatar(self, request):
-        if not request.user.is_authenticated:
-            return Response(
-                {'detail': 'Требуется авторизация'},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-        if request.data == {}:
+    def avatar(self, request): 
+        # if not request.user.is_authenticated:
+        #     return Response(
+        #         {'detail': 'Требуется авторизация'},
+        #         status=status.HTTP_401_UNAUTHORIZED
+        #     )
+        if request.data == {}: 
             return Response(
                 {'detail': 'Запрос не должен быть пустым'},
                 status=status.HTTP_400_BAD_REQUEST

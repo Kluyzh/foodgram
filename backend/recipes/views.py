@@ -7,7 +7,7 @@ from rest_framework.permissions import (AllowAny, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
-from recipes.filters import RecipeFilter
+from recipes.filters import RecipeFilter, CustomSearchFilter
 from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
 from recipes.permissions import IsAuthorOrReadOnly
 from recipes.serializers import (IngredientSerializer,
@@ -18,25 +18,13 @@ from recipes.serializers import (IngredientSerializer,
 from recipes.utils import generate_shopping_list
 
 
-class CustomSearchFilter(filters.SearchFilter):
-    search_param = 'name'
-
-
-class TagViewSet(
-    mixins.ListModelMixin,
-    mixins.RetrieveModelMixin,
-    viewsets.GenericViewSet
-):
+class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     pagination_class = None
 
 
-class IngredientViewSet(
-    viewsets.GenericViewSet,
-    mixins.ListModelMixin,
-    mixins.RetrieveModelMixin,
-):
+class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
@@ -45,7 +33,9 @@ class IngredientViewSet(
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    queryset = Recipe.objects.all()
+    queryset = Recipe.objects.select_related(
+        'author'
+    ).prefetch_related('tags', 'ingredients').all()
     permission_classes = (IsAuthorOrReadOnly, IsAuthenticatedOrReadOnly)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
@@ -58,13 +48,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=True,
-        methods=['post', 'delete'],
+        methods=['post'],
         permission_classes=(IsAuthenticated,)
     )
     def favorite(self, request, pk=None):
         recipe = self.get_object()
-        if request.method == 'POST':
-            return self._add_to(Favorite, request.user, recipe)
+        return self._add_to(Favorite, request.user, recipe)
+
+    @favorite.mapping.delete
+    def delete_favorite(self, request, pk=None):
+        recipe = self.get_object()
         return self._remove_from(Favorite, request.user, recipe)
 
     @action(
@@ -103,13 +96,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def _remove_from(self, model, user, recipe):
-        obj = model.objects.filter(user=user, recipe=recipe)
-        if not obj.exists():
+        deleted, _ = model.objects.filter(user=user, recipe=recipe).delete()
+        if not deleted:
             return Response(
-                {'errors': 'Рецепт не был добавлен'},
+                {'errors': 'Рецепт не был добавлен ранее'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(

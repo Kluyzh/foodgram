@@ -1,24 +1,10 @@
-import base64
-import uuid
-
 from django.contrib.auth import authenticate, get_user_model
-from django.core.files.base import ContentFile
-from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
 from recipes.models import Recipe
+from users.fields import Base64ImageField
 
 User = get_user_model()
-
-
-class Base64ImageField(serializers.ImageField):
-    def to_internal_value(self, data):
-        if isinstance(data, str) and data.startswith('data:image'):
-            format, imgstr = data.split(';base64,')
-            ext = format.split('/')[-1]
-            filename = f'{uuid.uuid4()}.{ext}'
-            data = ContentFile(base64.b64decode(imgstr), name=filename)
-        return super().to_internal_value(data)
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -93,17 +79,17 @@ class UserWithRecipesSerializer(UserSerializer):
 
 class EmailAuthTokenSerializer(serializers.Serializer):
     email = serializers.EmailField(
-        label=_('Email'),
+        label='Email',
         write_only=True
     )
     password = serializers.CharField(
-        label=_('Password'),
+        label='Password',
         style={'input_type': 'password'},
         trim_whitespace=False,
         write_only=True
     )
     token = serializers.CharField(
-        label=_('Token'),
+        label='Token',
         read_only=True
     )
 
@@ -119,10 +105,10 @@ class EmailAuthTokenSerializer(serializers.Serializer):
             )
 
             if not user:
-                msg = _('Unable to log in with provided credentials.')
+                msg = 'Не удалось войти с указанными учетными данными.'
                 raise serializers.ValidationError(msg, code='authorization')
         else:
-            msg = _('Must include "email" and "password".')
+            msg = 'Необходимо указать email и пароль.'
             raise serializers.ValidationError(msg, code='authorization')
 
         attrs['user'] = user
