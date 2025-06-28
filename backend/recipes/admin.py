@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
 
-from recipes.models import Ingredient, Recipe, Tag, Favorite
+from recipes.models import Favorite, Ingredient, Recipe, Tag
 
 admin.site.unregister(Group)
 

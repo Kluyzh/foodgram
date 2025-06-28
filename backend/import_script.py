@@ -3,10 +3,11 @@ import os
 
 import django
 
+from recipes.models import Ingredient
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'foodgram_backend.settings')
 django.setup()
 
-from recipes.models import Ingredient
 
 with open('ingredients.json', 'r', encoding='utf-8') as f:
     data = json.load(f)
@@ -17,4 +18,4 @@ for item in data:
         measurement_unit=item['measurement_unit']
     )
 
-print(f"Imported {len(data)} ingredients")
+print(f'Imported {len(data)} ingredients')

@@ -20,7 +20,7 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "https://foodgraaam.sytes.net",
+    'https://foodgraaam.sytes.net',
 ]
 
 CSRF_COOKIE_SECURE = True

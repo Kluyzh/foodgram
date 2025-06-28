@@ -158,7 +158,7 @@ class CustomUserViewSet(viewsets.ModelViewSet):
         page = self.paginate_queryset(authors)
         if page is not None:
             serializer = UserWithRecipesSerializer(
-                page, 
+                page,
                 many=True,
                 context={'request': request}
             )
