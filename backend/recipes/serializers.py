@@ -151,9 +151,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         ingredients_data = validated_data.pop('recipe_ingredients')
         tags = validated_data.pop('tags')
 
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
+        instance = super().update(instance, validated_data)
 
         if tags is not None:
             instance.tags.set(tags)
