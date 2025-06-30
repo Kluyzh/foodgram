@@ -3,7 +3,7 @@ from rest_framework import serializers
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Tag)
 from users.serializers import UserSerializer
-
+from recipes.constants import MIN_SMALL_INTEGER, MAX_SMALL_INTEGER
 
 from recipes.fields import Base64ImageField
 
@@ -20,13 +20,28 @@ class IngredientSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'measurement_unit')
 
 
-class RecipeIngredientSerializer(serializers.ModelSerializer):
+class RecipeIngredientWriteSerializer(serializers.ModelSerializer):
     id = serializers.PrimaryKeyRelatedField(
         queryset=Ingredient.objects.all(),
         source='ingredient'
     )
-    name = serializers.ReadOnlyField(source='ingredient.name')
-    measurement_unit = serializers.ReadOnlyField(
+
+    class Meta:
+        model = RecipeIngredient
+        fields = ('id', 'amount')
+
+    def validate_amount(self, value):
+        if value < MIN_SMALL_INTEGER or value > MAX_SMALL_INTEGER:
+            raise serializers.ValidationError(
+                f'Количество ингредиента должно быть от {MIN_SMALL_INTEGER} до {MAX_SMALL_INTEGER}'
+            )
+        return value
+
+
+class RecipeIngredientReadSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(source='ingredient.id')
+    name = serializers.CharField(source='ingredient.name')
+    measurement_unit = serializers.CharField(
         source='ingredient.measurement_unit'
     )
 
@@ -38,7 +53,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 class RecipeListSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True)
     author = UserSerializer(read_only=True)
-    ingredients = RecipeIngredientSerializer(
+    ingredients = RecipeIngredientReadSerializer(
         many=True,
         source='recipe_ingredients'
     )
@@ -69,16 +84,14 @@ class RecipeListSerializer(serializers.ModelSerializer):
 
 
 class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
-    ingredients = RecipeIngredientSerializer(
+    ingredients = RecipeIngredientWriteSerializer(
         many=True,
         source='recipe_ingredients'
     )
     tags = serializers.PrimaryKeyRelatedField(
         many=True,
         queryset=Tag.objects.all(),
-        write_only=True,
     )
-    tags_details = TagSerializer(source='tags', many=True, read_only=True)
     image = Base64ImageField()
     author = UserSerializer(read_only=True)
     is_favorited = serializers.SerializerMethodField(read_only=True)
@@ -88,7 +101,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = (
             'ingredients', 'tags', 'image', 'name', 'text',
-            'cooking_time', 'author', 'tags_details',
+            'cooking_time', 'author',
             'id', 'is_favorited', 'is_in_shopping_cart'
         )
 
@@ -163,9 +176,7 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
         return instance
 
     def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        representation['tags'] = representation.pop('tags_details')
-        return representation
+        return RecipeListSerializer(instance, context=self.context).data
 
     def get_is_favorited(self, obj):
         user = self.context['request'].user
