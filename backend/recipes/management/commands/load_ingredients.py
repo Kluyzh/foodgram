@@ -1,5 +1,7 @@
 import json
+
 from django.core.management.base import BaseCommand
+
 from recipes.models import Ingredient
 
 
@@ -31,7 +33,8 @@ class Command(BaseCommand):
 
                 self.stdout.write(
                     self.style.SUCCESS(
-                        f'Успешно загружено {created_count}/{len(ingredients_data)} ингредиентов'
+                        f'Успешно загружено {created_count}'
+                        '/{len(ingredients_data)} ингредиентов'
                     )
                 )
 

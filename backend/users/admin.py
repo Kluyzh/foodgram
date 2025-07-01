@@ -9,7 +9,10 @@ User = get_user_model()
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
-    list_display = ('username', 'email', 'first_name', 'last_name', 'get_subscribers_count', 'get_recipes_count')
+    list_display = (
+        'username', 'email', 'first_name', 'last_name',
+        'get_subscribers_count', 'get_recipes_count'
+    )
     search_fields = ('username', 'email')
     readonly_fields = ('get_subscribers_count', 'get_recipes_count')
 

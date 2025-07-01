@@ -1,9 +1,11 @@
 from django.contrib.auth import get_user_model
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.urls import reverse
-from recipes.constants import (BIGGER_NAME_LIMIT, MEASURMENT_NAME_LIMIT,
-                               NAME_LIMIT, MIN_SMALL_INTEGER, MAX_SMALL_INTEGER)
+
+from recipes.constants import (BIGGER_NAME_LIMIT, MAX_SMALL_INTEGER,
+                               MEASURMENT_NAME_LIMIT, MIN_SMALL_INTEGER,
+                               NAME_LIMIT)
 
 User = get_user_model()
 

@@ -2,7 +2,8 @@ from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.utils.safestring import mark_safe
 
-from recipes.models import Favorite, Ingredient, Recipe, Tag, ShoppingCart, RecipeIngredient
+from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                            ShoppingCart, Tag)
 
 admin.site.unregister(Group)
 
@@ -43,7 +44,8 @@ class RecipeAdmin(admin.ModelAdmin):
     @mark_safe
     def display_ingredients(self, obj):
         return '<br>'.join(
-            f'<span class="italic">{ingredient.name}</span>' for ingredient in obj.ingredients.all()
+            f'<span class="italic">{ingredient.name}</span>'
+            for ingredient in obj.ingredients.all()
         )
 
     @admin.display(description='Изображение')

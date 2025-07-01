@@ -5,11 +5,17 @@ from recipes.models import Recipe, Tag
 
 
 class RecipeFilter(filters_from_django_filters.FilterSet):
-    is_favorited = filters_from_django_filters.BooleanFilter(method='filter_is_favorited')
+    is_favorited = filters_from_django_filters.BooleanFilter(
+        method='filter_is_favorited'
+    )
     is_in_shopping_cart = filters_from_django_filters.BooleanFilter(
         method='filter_in_shopping_cart'
     )
-    tags = filters_from_django_filters.ModelMultipleChoiceFilter(field_name='tags__slug', queryset=Tag.objects.all(), to_field_name='slug')
+    tags = filters_from_django_filters.ModelMultipleChoiceFilter(
+        field_name='tags__slug',
+        queryset=Tag.objects.all(),
+        to_field_name='slug'
+    )
 
     class Meta:
         model = Recipe
