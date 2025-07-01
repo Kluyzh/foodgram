@@ -16,6 +16,8 @@ from recipes.serializers import (IngredientSerializer,
                                  RecipeMinifiedSerializer,
                                  RecipeShortLinkSerializer, TagSerializer)
 from recipes.utils import generate_shopping_list
+from users.pagination import CustomPageNumberPagination
+from django.shortcuts import get_object_or_404, redirect
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
@@ -39,7 +41,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthorOrReadOnly, IsAuthenticatedOrReadOnly)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
-    pagination_class = LimitOffsetPagination
+    pagination_class = CustomPageNumberPagination
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
@@ -120,3 +122,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             'measurement_unit'
         )
         return generate_shopping_list(ingredients)
+
+
+def redirect_short_link(request, pk):
+    recipe = get_object_or_404(Recipe, pk=pk)
+    return redirect(recipe)

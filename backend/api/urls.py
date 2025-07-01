@@ -1,14 +1,14 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from recipes.views import IngredientViewSet, RecipeViewSet, TagViewSet
+from recipes.views import IngredientViewSet, RecipeViewSet, TagViewSet, redirect_short_link
 from users.views import (CustomTokenViewSet, CustomUserViewSet,
                          SubscriptionViewSet)
 
 app_name = 'api'
 
 router = DefaultRouter()
-router.register(r'recipes', RecipeViewSet, basename='recipes')
+router.register(r'recipes', RecipeViewSet, basename='recipe')
 router.register(r'tags', TagViewSet, basename='tags')
 router.register(r'ingredients', IngredientViewSet, basename='ingredients')
 
@@ -29,6 +29,7 @@ urlpatterns = [
             'delete': 'destroy'
         }
     ), name='subscribe'),
+    path('<int:pk>/', redirect_short_link, name='short_recipe_link'),
 
     path('', include(router.urls)),
 ]
