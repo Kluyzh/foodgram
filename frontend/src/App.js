@@ -285,14 +285,6 @@ function App() {
               onAvatarChange={changeAvatar}
             />
 
-            <Route exact path="/s/:id">
-              <SingleCard
-                loggedIn={loggedIn}
-                loadItem={loadSingleItem}
-                updateOrders={updateOrders}
-              />
-            </Route>
-
             <Route exact path="/recipes/:id">
               <SingleCard
                 loggedIn={loggedIn}

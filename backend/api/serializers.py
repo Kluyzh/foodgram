@@ -50,7 +50,7 @@ class RecipeIngredientWriteSerializer(serializers.ModelSerializer):
         fields = ('id', 'amount')
 
     def validate_amount(self, value):
-        if value < MIN_SMALL_INTEGER or value > MAX_SMALL_INTEGER:
+        if not MAX_SMALL_INTEGER > value > MIN_SMALL_INTEGER:
             raise serializers.ValidationError(
                 f'Количество ингредиента должно быть '
                 f'от {MIN_SMALL_INTEGER} до {MAX_SMALL_INTEGER}'
@@ -252,7 +252,7 @@ class RecipeShortLinkSerializer(serializers.ModelSerializer):
 
     def get_short_link(self, obj):
         request = self.context['request']
-        return f'https://{request.get_host()}/s/{obj.id}/'
+        return request.build_absolute_uri(f'/s/{obj.id}/')
 
     def to_representation(self, instance):
         data = super().to_representation(instance)

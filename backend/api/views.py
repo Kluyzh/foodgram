@@ -85,13 +85,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=True,
-        methods=['post', 'delete'],
+        methods=['post'],
         permission_classes=(IsAuthenticated,)
     )
     def shopping_cart(self, request, pk=None):
         recipe = self.get_object()
-        if request.method == 'POST':
-            return self._add_to(ShoppingCart, request.user, recipe)
+        return self._add_to(ShoppingCart, request.user, recipe)
+
+    @shopping_cart.mapping.delete
+    def shopping_cart_delete(self, request, pk=None):
+        recipe = self.get_object()
         return self._remove_from(ShoppingCart, request.user, recipe)
 
     def _add_to(self, model, user, recipe):
@@ -132,8 +135,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 
 def redirect_short_link(request, pk):
-    recipe = get_object_or_404(Recipe, pk=pk)
-    return redirect(recipe)
+    redirect_url = f'/recipes/{pk}/'
+    return redirect(redirect_url, permanent=True)
 
 
 class SubscriptionViewSet(
