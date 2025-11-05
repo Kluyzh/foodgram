@@ -1,180 +1,91 @@
-Foodgram - Ваши рецепты и вам продуктовый помощник
+# Фудграм
 
-Описание проекта
-Foodgram - это онлайн-платформа для публикации кулинарных рецептов.
+### Описание проекта:
+«Фудграм» — сайт, на котором можно публиковать рецепты, добавлять чужие рецепты в избранное и подписываться на публикации других авторов. Пользователям сайта также доступен сервис «Список покупок». Он позволяет создавать список продуктов, которые нужно купить для приготовления выбранных блюд.
 
-Пользователи могут:
+## Технологии
+- Python 3.9
+- Django==3.2.16
+- djangorestframework==3.12.4
+- nginx
+- djoser==2.1.0
+- Postgres
 
-Создавать и публиковать свои рецепты
+## Что cделано:
 
-Добавлять рецепты других пользователей в избранное
+- Настроен запуск проекта Foodgram в контейнерах и CI/CD с помощью GitHub Actions
+- Пуш в ветку master запускает тестирование и деплой Foodgram, а после успешного деплоя вам приходит сообщение в телеграм.
+- настроено взаимодействие Python-приложения с внешними API-сервисами;
+- создан собственный API-сервис на базе проекта Django;
+- подключено SPA к бэкенду на Django через API;
+- созданы образы и запущены контейнеры Docker;
+- созданы, развёрнуты и запущены на сервере мультиконтейнерные приложения;
+- закреплены на практике основы DevOps, включая CI&CD.
+Инструменты и стек: #python #JSON #YAML #Django #React #Telegram #API #Docker #Nginx #PostgreSQL #Gunicorn #JWT #Postman
 
-Подписываться на авторов рецептов
+## Автор
+Илья Клюжев https://github.com/kluyzh 
 
-Формировать список покупок для выбранных рецептов
+### Как запустить проект:
 
-Скачивать итоговый список покупок в текстовом формате
+Клонировать репозиторий и перейти в него в командной строке:
 
-Проект доступен по адресу: https://foodgraaam.sytes.net
+```
+git clone <https or SSH URL>
+```
 
-Технологический стек
+Перейти в директорию backend
+```
+cd /foodgram-project-react/backend/
+```
 
-Backend
-Python 3.9
+Создать и активировать вирутальное окружение(для Windows):
+```
+python -m venv venv
+```
+```
+source venv/Scripts/activate
+```
 
-Django 4.2.22
+Установоить зависимости:
+```
+pip install -r requirements.txt
+```
 
-Django REST Framework 3.16.0
+Создать файл .evn для хранения ключей в корне проекта:
 
-Djoser 2.3.1 (аутентификация)
-
-PostgreSQL 13 (база данных)
-
-Gunicorn 23.0.0 (веб-сервер)
-
-Psycopg2 2.9.9 (драйвер PostgreSQL)
-
-Pillow 11.2.1 (обработка изображений)
-
-Django-filter 25.1 (фильтрация данных)
-
-Nginx 1.19 (прокси-сервер)
-
-Frontend
-React
-
-Инфраструктура
-Docker
-
-Docker Compose
-
-GitHub Actions (CI/CD)
-
-Ключевые особенности
-
-Фильтрация рецептов по тегам
-
-Система подписок на авторов
-
-Формирование списка покупок с группировкой ингредиентов
-
-Возможность скачивания списка покупок
-
-Управление избранными рецептами
-
-Локальное развертывание с Docker
-1. Клонирование репозитория
-bash
-git clone git@github.com:Kluyzh/foodgram.git
-cd infra
-2. Настройка окружения
-Создайте файл .env в директории infra:
-
-# Настройки базы данных
-DB_ENGINE=django.db.backends.postgresql
-DB_NAME=foodgram
-POSTGRES_USER=foodgram_user
-POSTGRES_PASSWORD=secure_password
+```
+SECRET_KEY='указать секретный ключ'
+ALLOWED_HOSTS='указать имя или IP хоста'
+POSTGRES_DB: django_db
+POSTGRES_USER: django_user
+POSTGRES_PASSWORD: django_password
+DB_NAME=kittygram
 DB_HOST=db
 DB_PORT=5432
+SECRET_KEY=<50ти символьный ключ>
+DEBUG=False
+```
 
-# Настройки Django
-SECRET_KEY=django-insecure-!@#your_secret_key_here$%^
-DEBUG=True
-ALLOWED_HOSTS=localhost,127.0.0.1
+Запустить docker-compose.production:
+```
+docker compose -f docker-compose.production.yml up
+```
 
-# Настройки для фронтенда
-API_URL=http://localhost/api/
-3. Запуск контейнеров
-docker-compose up -d --build
-4. Применение миграций
-docker-compose exec backend python manage.py migrate
-5. Создание администратора
-docker-compose exec backend python manage.py createsuperuser
-6. Импорт данных
-# Ингредиенты
-docker-compose exec backend python manage.py load_ingredients ingredients.json
+Выполнить миграции, сбор статики:
+```
+docker compose -f docker-compose.production.yml exec backend python manage.py migrate
+docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic
+docker compose -f docker-compose.production.yml exec backend cp -r /app/collected_static/. /static/static/
+```
 
-7. Сбор статических файлов
-docker-compose exec backend python manage.py collectstatic
-8. Доступ к проекту
-После выполнения всех команд:
+Наполнить базу данных ингредиентами:
+```
+docker compose exec backend python manage.py load_ingredients_from_csv
+```
 
-Frontend: http://localhost
+Создать суперпользователя, ввести почту, логин, пароль:
 
-Backend API: http://localhost/api
-
-Админ-панель: http://localhost/admin
-
-Примеры API-запросов
-Регистрация пользователя
-bash
-curl -X POST http://localhost/api/users/ \
-  -H "Content-Type: application/json" \
-  -d '{
-        "email": "user@example.com",
-        "username": "new_user",
-        "first_name": "Иван",
-        "last_name": "Иванов",
-        "password": "strongpassword123"
-      }'
-Получение токена
-bash
-curl -X POST http://localhost/api/auth/token/login/ \
-  -H "Content-Type: application/json" \
-  -d '{"email": "user@example.com", "password": "strongpassword123"}'
-
-# Ответ: {"auth_token": "ваш_токен"}
-Создание рецепта
-bash
-curl -X POST http://localhost/api/recipes/ \
-  -H "Authorization: Token ваш_токен" \
-  -H "Content-Type: application/json" \
-  -d '{
-        "name": "Паста Карбонара",
-        "ingredients": [
-          {"id": 1, "amount": 200},
-          {"id": 2, "amount": 100},
-          {"id": 3, "amount": 2}
-        ],
-        "tags": [1, 2],
-        "image": "data:image/png;base64,iVBORw0KGgo...",
-        "text": "Пошаговый рецепт...",
-        "cooking_time": 30
-      }'
-Получение списка рецептов
-bash
-curl http://localhost/api/recipes/
-
-# Фильтрация по тегам
-curl http://localhost/api/recipes/?tags=завтрак&tags=обед
-Скачивание списка покупок
-bash
-curl http://localhost/api/recipes/download_shopping_cart/ \
-  -H "Authorization: Token ваш_токен" \
-  -o shopping_list.txt
-Управление проектом
-Основные команды
-bash
-# Запуск контейнеров
-docker-compose up -d
-
-# Остановка контейнеров
-docker-compose down
-
-# Просмотр логов
-docker-compose logs -f backend
-
-# Пересборка контейнеров
-docker-compose build
-
-# Выполнение команд в контейнере
-docker-compose exec backend python manage.py shell
-Администрирование
-После создания суперпользователя доступны:
-
-Админ-панель Django: /admin
-
-Управление пользователями, рецептами, ингредиентами
-
-Просмотр статистики (количество добавлений в избранное)
+```
+docker compose -f docker-compose.production.yml exec backend python manage.py createsuperuser
+```
