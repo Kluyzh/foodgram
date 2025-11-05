@@ -15,12 +15,12 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(',')
 
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://foodgraaam.sytes.net',
+    'https://foodgram-online.ru',
 
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    'https://foodgraaam.sytes.net',
+    'https://foodgram-online.ru',
 ]
 
 CSRF_COOKIE_SECURE = True

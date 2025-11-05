@@ -10,19 +10,19 @@ from rest_framework.permissions import (AllowAny, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
-from api.filters import CustomSearchFilter, RecipeFilter
-from api.pagination import CustomPageNumberPagination
-from api.permissions import IsAuthorOrReadOnly
-from api.serializers import (CustomUserCreateSerializer,
-                             EmailAuthTokenSerializer, IngredientSerializer,
-                             RecipeCreateUpdateSerializer,
-                             RecipeListSerializer, RecipeMinifiedSerializer,
-                             RecipeShortLinkSerializer, SetAvatarSerializer,
-                             TagSerializer, UserSerializer,
-                             UserWithRecipesSerializer)
-from api.utils import generate_shopping_list
-from recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
-from users.models import Subscription
+from .filters import CustomSearchFilter, RecipeFilter
+from .pagination import CustomPageNumberPagination
+from .permissions import IsAuthorOrReadOnly
+from .serializers import (CustomUserCreateSerializer,
+                          EmailAuthTokenSerializer, IngredientSerializer,
+                          RecipeCreateUpdateSerializer,
+                          RecipeListSerializer, RecipeMinifiedSerializer,
+                          RecipeShortLinkSerializer, SetAvatarSerializer,
+                          TagSerializer, UserSerializer,
+                          UserWithRecipesSerializer)
+from .utils import generate_shopping_list
+from ..recipes.models import Favorite, Ingredient, Recipe, ShoppingCart, Tag
+from ..users.models import Subscription
 
 User = get_user_model()
 

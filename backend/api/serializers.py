@@ -1,10 +1,10 @@
 from django.contrib.auth import authenticate, get_user_model
 from rest_framework import serializers
 
-from api.fields import Base64ImageField
-from recipes.constants import MAX_SMALL_INTEGER, MIN_SMALL_INTEGER
-from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
-                            ShoppingCart, Tag)
+from .fields import Base64ImageField
+from ..recipes.constants import MAX_SMALL_INTEGER, MIN_SMALL_INTEGER
+from ..recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                              ShoppingCart, Tag)
 
 User = get_user_model()
 
