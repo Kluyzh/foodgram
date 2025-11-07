@@ -5,16 +5,16 @@
 
 ## Технологии
 - Python 3.9
-- Django==3.2.16
-- djangorestframework==3.12.4
+- Django==4.2.22
+- djangorestframework==3.16.0
 - nginx
-- djoser==2.1.0
-- Postgres
+- djoser==2.3.1
+- Postgresql
 
 ## Что cделано:
 
 - Настроен запуск проекта Foodgram в контейнерах и CI/CD с помощью GitHub Actions
-- Пуш в ветку master запускает тестирование и деплой Foodgram, а после успешного деплоя вам приходит сообщение в телеграм.
+- Пуш в ветку master запускает сборку и деплой Foodgram, а после успешного деплоя вам приходит сообщение в телеграм.
 - настроено взаимодействие Python-приложения с внешними API-сервисами;
 - создан собственный API-сервис на базе проекта Django;
 - подключено SPA к бэкенду на Django через API;
@@ -34,58 +34,33 @@
 git clone <https or SSH URL>
 ```
 
-Перейти в директорию backend
-```
-cd /foodgram-project-react/backend/
-```
-
-Создать и активировать вирутальное окружение(для Windows):
-```
-python -m venv venv
-```
-```
-source venv/Scripts/activate
-```
-
-Установоить зависимости:
-```
-pip install -r requirements.txt
-```
-
 Создать файл .evn для хранения ключей в корне проекта:
 
 ```
 SECRET_KEY='указать секретный ключ'
-ALLOWED_HOSTS='указать имя или IP хоста'
+ALLOWED_HOSTS='указать имя,IP хоста,"backend"'
 POSTGRES_DB: django_db
 POSTGRES_USER: django_user
 POSTGRES_PASSWORD: django_password
-DB_NAME=kittygram
 DB_HOST=db
 DB_PORT=5432
-SECRET_KEY=<50ти символьный ключ>
 DEBUG=False
 ```
 
-Запустить docker-compose.production:
+Из основной директории
 ```
-docker compose -f docker-compose.production.yml up
-```
-
-Выполнить миграции, сбор статики:
-```
-docker compose -f docker-compose.production.yml exec backend python manage.py migrate
-docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic
-docker compose -f docker-compose.production.yml exec backend cp -r /app/collected_static/. /static/static/
+docker compose up -d
 ```
 
-Наполнить базу данных ингредиентами:
+Наполнить проект ингредиентами
 ```
-docker compose exec backend python manage.py load_ingredients_from_csv
+docker compose exec backend python manage.py load_ingredients ingredients.json
 ```
-
-Создать суперпользователя, ввести почту, логин, пароль:
-
+Создать суперпользователя
 ```
-docker compose -f docker-compose.production.yml exec backend python manage.py createsuperuser
+docker compose exec backend python manage.py createsuperuser
+```
+Войти в админ зону и создать свои теги для рецептов
+```
+http://127.0.0.1:80/admin/
 ```
