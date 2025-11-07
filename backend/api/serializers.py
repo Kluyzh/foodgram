@@ -50,7 +50,7 @@ class RecipeIngredientWriteSerializer(serializers.ModelSerializer):
         fields = ('id', 'amount')
 
     def validate_amount(self, value):
-        if not MAX_SMALL_INTEGER > value > MIN_SMALL_INTEGER:
+        if not MAX_SMALL_INTEGER >= value >= MIN_SMALL_INTEGER:
             raise serializers.ValidationError(
                 f'Количество ингредиента должно быть '
                 f'от {MIN_SMALL_INTEGER} до {MAX_SMALL_INTEGER}'
